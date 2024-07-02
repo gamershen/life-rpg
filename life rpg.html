@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeRPG Clone</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+            background-color: #f0f0f0;
+        }
+        .hidden {
+            display: none;
+        }
+        .tabs-list {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tabs-list button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+        }
+        .tabs-list button:hover {
+            background-color: #45a049;
+        }
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #4CAF50;
+            transition: width 0.5s ease-in-out;
+        }
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .task-item.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+        .task-item button {
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .task-form, .shop-form, .skill-form, .settings-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .task-form input, .task-form select, .shop-form input, .shop-form select, .skill-form input, .settings-form input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .task-form button, .shop-form button, .skill-form button, .settings-form button {
+            padding: 5px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        #reset-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #reset-button:hover {
+            background-color: #d32f2f;
+        }
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .settings-form label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .settings-form input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 100%;
+        }
+        .settings-form select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            width: 100%;
+        }
+        .settings-form button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+        .remove-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .remove-button:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+</head>
+<body>
+
+<h1 style="text-align: center; color: #333;">LifeRPG Clone</h1>
+
+<div class="tabs-list">
+    <button onclick="showTab('skills')">Skills</button>
+    <button onclick="showTab('projects')">Projects</button>
+    <button onclick="showTab('character')">Character</button>
+    <button onclick="showTab('shop')">Shop</button>
+    <button onclick="showTab('settings')">Settings</button>
+</div>
+
+<div id="skills" class="tab-content">
+    <div class="skills-grid" id="skills-container"></div>
+    <div class="skill-form">
+        <input type="text" id="new-skill-name" placeholder="New Skill Name">
+        <button onclick="addSkill()">Add Skill</button>
+    </div>
+</div>
+
+<div id="projects" class="tab-content hidden">
+    <div class="card">
+        <h2>Add New Task</h2>
+        <div class="task-form">
+            <input type="text" id="new-task" placeholder="Enter a new task">
+            <select id="new-skill">
+                <!-- Options will be added dynamically -->
+            </select>
+            <select id="new-difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+            <button onclick="addTask()">Add Task</button>
+        </div>
+    </div>
+    <div class="card">
+        <h2>Tasks</h2>
+        <ul id="tasks-list" style="list-style-type: none; padding: 0;"></ul>
+    </div>
+</div>
+
+<div id="character" class="tab-content hidden">
+    <div class="card">
+        <h2 id="character-name" style="text-align: center; color: #4CAF50;"></h2>
+        <div style="display: flex; justify-content: space-around; margin-bottom: 20px;">
+            <div>
+                <strong>Level:</strong> <span id="character-level"></span>
+            </div>
+            <div>
+                <strong>Coins:</strong> <span id="character-coins"></span>
+            </div>
+        </div>
+        <div>
+            <strong>Health:</strong>
+            <div class="progress">
+                <div id="health-bar" class="progress-bar"></div>
+            </div>
+            <span id="character-health"></span>
+        </div>
+        <div>
+            <strong>Goal Completion:</strong>
+            <div class="progress">
+                <div id="goal-completion-bar" class="progress-bar"></div>
+            </div>
+        </div>
+        <div>
+            <strong>Level Progress:</strong>
+            <div class="progress">
+                <div id="level-progress-bar" class="progress-bar"></div>
+            </div>
+            <span id="character-progress"></span>
+        </div>
+    </div>
+</div>
+
+<div id="shop" class="tab-content hidden">
+    <div class="card">
+        <h2>Shop</h2>
+        <div class="shop-form">
+            <input type="text" id="new-item-name" placeholder="New Item Name">
+            <input type="number" id="new-item-cost" placeholder="Cost">
+            <button onclick="addItem()">Add Item</button>
+        </div>
+        <ul id="shop-items-list" style="list-style-type: none; padding: 0;"></ul>
+    </div>
+</div>
+
+<div id="settings" class="tab-content hidden">
+    <div class="card">
+        <h2>Settings</h2>
+        <div class="settings-form">
+            <label for="character-name-input">Character Name:</label>
+            <input type="text" id="character-name-input">
+
+            <label for="points-per-task">Points per Task:</label>
+            <input type="number" id="points-per-task">
+
+            <label for="coins-per-task">Coins per Task:</label>
+            <input type="number" id="coins-per-task">
+
+            <label for="max-points">Max Points per Skill:</label>
+            <input type="number" id="max-points">
+
+            <label for="health-per-task">Health Improvement per Task:</label>
+            <input type="number" id="health-per-task">
+
+            <label for="goal-completion">Goal Completion per Task (%):</label>
+            <input type="number" id="goal-completion">
+
+            <label for="remove-skill">Remove Skill:</label>
+            <div style="display: flex; gap: 10px;">
+                <select id="remove-skill">
+                    <!-- Skills options will be populated dynamically -->
+                </select>
+                <button onclick="removeSkill()">Remove Skill</button>
+            </div>
+
+            <button onclick="saveSettings()">Save Settings</button>
+        </div>
+    </div>
+</div>
+
+<button id="reset-button" onclick="resetProgress()">Reset All Progress</button>
+
+<script>
+    let SKILLS = ['Learning', 'Sport', 'Cooking'];
+    const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
+    let tasks = [];
+    let habits = [];
+    let shopItems = [];
+    let pointsPerTask = 10;
+    let coinsPerTask = 1;
+    let healthPerTask = 5;
+    let goalCompletionPerTask = 5;
+    let character = getInitialCharacter();
+
+    function getInitialCharacter() {
+        return {
+            name: 'Netanel',
+            level: 1,
+            coins: 0,
+            health: 100,
+            maxHealth: 100,
+            skills: {
+                Learning: { points: 0, level: 1, max: 20 },
+                Sport: { points: 0, level: 1, max: 20 },
+                Cooking: { points: 0, level: 1, max: 20 }
+            },
+            goalCompletion: 0,
+            levelProgress: 0,
+            maxLevelProgress: 100
+        };
+    }
+
+    function loadData() {
+        if (localStorage.getItem('tasks')) {
+            tasks = JSON.parse(localStorage.getItem('tasks'));
+        }
+        if (localStorage.getItem('character')) {
+            character = JSON.parse(localStorage.getItem('character'));
+        }
+        if (localStorage.getItem('shopItems')) {
+            shopItems = JSON.parse(localStorage.getItem('shopItems'));
+        }
+        if (localStorage.getItem('settings')) {
+            const settings = JSON.parse(localStorage.getItem('settings'));
+            pointsPerTask = settings.pointsPerTask;
+            coinsPerTask = settings.coinsPerTask;
+            healthPerTask = settings.healthPerTask;
+            goalCompletionPerTask = settings.goalCompletionPerTask;
+        }
+        if (localStorage.getItem('skills')) {
+            SKILLS = JSON.parse(localStorage.getItem('skills'));
+        }
+    }
+
+    function resetProgress() {
+        if (confirm("Are you sure you want to reset all progress? This action cannot be undone.")) {
+            tasks = [];
+            character = getInitialCharacter();
+            shopItems = [];
+            SKILLS = ['Learning', 'Sport', 'Cooking'];
+            saveTasks();
+            saveCharacter();
+            saveShopItems();
+            saveSkills();
+            updateSkills();
+            updateCharacter();
+            updateTasks();
+            updateShop();
+            updateRemoveSkillOptions();
+            alert("All progress has been reset!");
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadData();
+        updateSkills();
+        updateCharacter();
+        updateTasks();
+        updateShop();
+        updateSettings();
+        updateRemoveSkillOptions();
+        showTab('skills');
+    });
+
+    function showTab(tab) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.getElementById(tab).classList.remove('hidden');
+    }
+
+    function updateSkills() {
+        const skillsContainer = document.getElementById('skills-container');
+        skillsContainer.innerHTML = '';
+        SKILLS.forEach(skill => {
+            const data = character.skills[skill] || { points: 0, level: 1, max: 20 };
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <h3>${skill}</h3>
+                <div class="progress">
+                    <div class="progress-bar" style="width: ${(data.points / data.max) * 100}%"></div>
+                </div>
+                <p>${data.points} / ${data.max} • LV ${data.level}</p>
+            `;
+            skillsContainer.appendChild(card);
+        });
+        updateSkillOptions();
+    }
+
+    function updateCharacter() {
+        document.getElementById('character-name').textContent = character.name;
+        document.getElementById('character-level').textContent = character.level;
+        document.getElementById('character-coins').textContent = character.coins;
+        document.getElementById('character-health').textContent = `${character.health} / ${character.maxHealth}`;
+        document.getElementById('health-bar').style.width = `${(character.health / character.maxHealth) * 100}%`;
+        document.getElementById('goal-completion-bar').style.width = `${character.goalCompletion}%`;
+        document.getElementById('level-progress-bar').style.width = `${(character.levelProgress / character.maxLevelProgress) * 100}%`;
+        document.getElementById('character-progress').textContent = `${character.levelProgress} / ${character.maxLevelProgress}`;
+    }
+
+    function addTask() {
+        const newTask = document.getElementById('new-task').value.trim();
+        const newSkill = document.getElementById('new-skill').value;
+        const newDifficulty = document.getElementById('new-difficulty').value;
+        if (newTask) {
+            const task = { id: Date.now(), text: newTask, skill: newSkill, difficulty: newDifficulty, completed: false };
+            tasks.push(task);
+            saveTasks();
+            updateTasks();
+            document.getElementById('new-task').value = '';
+        }
+    }
+
+    function completeTask(id) {
+        const task = tasks.find(t => t.id === id);
+        if (task) {
+            task.completed = true;
+            const pointsGain = calculatePoints(task.difficulty);
+            const coinsGain = calculateCoins(task.difficulty);
+            gainSkillPoints(task.skill, pointsGain);
+            gainCoins(coinsGain);
+            improveHealth(healthPerTask);
+            updateGoalCompletion(goalCompletionPerTask);
+            updateLevelProgress(pointsGain);
+            saveTasks();
+            updateSkills();
+            updateCharacter();
+            updateTasks();
+        }
+    }
+
+    function calculatePoints(difficulty) {
+        switch (difficulty) {
+            case 'Easy': return pointsPerTask;
+            case 'Medium': return pointsPerTask * 2;
+            case 'Hard': return pointsPerTask * 3;
+            default: return pointsPerTask;
+        }
+    }
+
+    function calculateCoins(difficulty) {
+        switch (difficulty) {
+            case 'Easy': return coinsPerTask;
+            case 'Medium': return coinsPerTask * 2;
+            case 'Hard': return coinsPerTask * 3;
+            default: return coinsPerTask;
+        }
+    }
+
+    function gainSkillPoints(skill, amount) {
+        if (!character.skills[skill]) {
+            character.skills[skill] = { points: 0, level: 1, max: 20 };
+        }
+        character.skills[skill].points += amount;
+        if (character.skills[skill].points >= character.skills[skill].max) {
+            character.skills[skill].level += 1;
+            character.skills[skill].points -= character.skills[skill].max;
+            character.skills[skill].max = Math.floor(20 * Math.pow(1.5, character.skills[skill].level));
+        }
+        saveCharacter();
+    }
+
+    function gainCoins(amount) {
+        character.coins += amount * character.level;
+        saveCharacter();
+    }
+
+    function improveHealth(amount) {
+        character.health = Math.min(character.health + amount, character.maxHealth);
+        saveCharacter();
+    }
+
+    function updateGoalCompletion(amount) {
+        character.goalCompletion = Math.min(character.goalCompletion + amount, 100);
+        saveCharacter();
+    }
+
+    function updateLevelProgress(amount) {
+        character.levelProgress += amount;
+        if (character.levelProgress >= character.maxLevelProgress) {
+            character.level += 1;
+            character.levelProgress -= character.maxLevelProgress;
+            character.maxLevelProgress = Math.floor(100 * Math.pow(1.5, character.level));
+        }
+        saveCharacter();
+    }
+
+    function updateTasks() {
+        const tasksList = document.getElementById('tasks-list');
+        tasksList.innerHTML = '';
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.className = 'task-item';
+            li.innerHTML = `
+                <span>${task.text} (${task.skill} - ${task.difficulty})</span>
+                ${!task.completed ? `<button onclick="completeTask(${task.id})">Complete</button>` : ''}
+            `;
+            if (task.completed) {
+                li.classList.add('completed');
+            }
+            tasksList.appendChild(li);
+        });
+    }
+
+    function updateSkillOptions() {
+        const skillSelect = document.getElementById('new-skill');
+        skillSelect.innerHTML = '';
+        SKILLS.forEach(skill => {
+            const option = document.createElement('option');
+            option.value = skill;
+            option.textContent = skill;
+            skillSelect.appendChild(option);
+        });
+    }
+
+    function addSkill() {
+        const newSkillName = document.getElementById('new-skill-name').value.trim();
+        if (newSkillName && !SKILLS.includes(newSkillName)) {
+            SKILLS.push(newSkillName);
+            character.skills[newSkillName] = { points: 0, level: 1, max: 20 };
+            updateSkills();
+            updateRemoveSkillOptions();
+            saveCharacter();
+            saveSkills();
+            document.getElementById('new-skill-name').value = '';
+            alert(`Skill "${newSkillName}" has been added!`);
+        } else {
+            alert("Please enter a unique skill name.");
+        }
+    }
+
+    function removeSkill() {
+        const skillToRemove = document.getElementById('remove-skill').value;
+        if (skillToRemove && SKILLS.length > 1) {
+            SKILLS = SKILLS.filter(skill => skill !== skillToRemove);
+            delete character.skills[skillToRemove];
+            updateSkills();
+            updateRemoveSkillOptions();
+            saveCharacter();
+            saveSkills();
+            alert(`Skill "${skillToRemove}" has been removed!`);
+        } else {
+            alert("You must keep at least one skill.");
+        }
+    }
+
+    function updateRemoveSkillOptions() {
+        const removeSkillSelect = document.getElementById('remove-skill');
+        removeSkillSelect.innerHTML = '';
+        SKILLS.forEach(skill => {
+            const option = document.createElement('option');
+            option.value = skill;
+            option.textContent = skill;
+            removeSkillSelect.appendChild(option);
+        });
+    }
+
+    function addItem() {
+        const newItemName = document.getElementById('new-item-name').value.trim();
+        const newItemCost = parseInt(document.getElementById('new-item-cost').value);
+        if (newItemName && !isNaN(newItemCost)) {
+            const item = { id: Date.now(), name: newItemName, cost: newItemCost };
+            shopItems.push(item);
+            saveShopItems();
+            updateShop();
+            document.getElementById('new-item-name').value = '';
+            document.getElementById('new-item-cost').value = '';
+        }
+    }
+
+    function updateShop() {
+        const shopItemsList = document.getElementById('shop-items-list');
+        shopItemsList.innerHTML = '';
+        shopItems.forEach(item => {
+            const li = document.createElement('li');
+            li.className = 'task-item';
+            li.innerHTML = `
+                <span>${item.name} - ${item.cost} coins</span>
+                <button onclick="buyItem(${item.id})">Buy</button>
+                <button class="remove-button" onclick="removeShopItem(${item.id})">Remove</button>
+            `;
+            shopItemsList.appendChild(li);
+        });
+    }
+
+    function buyItem(id) {
+        const item = shopItems.find(i => i.id === id);
+        if (item && character.coins >= item.cost) {
+            character.coins -= item.cost;
+            alert(`You bought ${item.name} for ${item.cost} coins!`);
+            saveCharacter();
+            updateCharacter();
+        } else {
+            alert("Not enough coins!");
+        }
+    }
+
+    function removeShopItem(id) {
+        shopItems = shopItems.filter(item => item.id !== id);
+        saveShopItems();
+        updateShop();
+    }
+
+    function updateSettings() {
+        document.getElementById('points-per-task').value = pointsPerTask;
+        document.getElementById('coins-per-task').value = coinsPerTask;
+        document.getElementById('character-name-input').value = character.name;
+        document.getElementById('max-points').value = character.skills[SKILLS[0]].max; // Assuming all skills have the same max points
+        document.getElementById('health-per-task').value = healthPerTask;
+        document.getElementById('goal-completion').value = goalCompletionPerTask;
+    }
+
+    function saveSettings() {
+        pointsPerTask = parseInt(document.getElementById('points-per-task').value);
+        coinsPerTask = parseInt(document.getElementById('coins-per-task').value);
+        character.name = document.getElementById('character-name-input').value.trim();
+        const maxPoints = parseInt(document.getElementById('max-points').value);
+        healthPerTask = parseInt(document.getElementById('health-per-task').value);
+        goalCompletionPerTask = parseInt(document.getElementById('goal-completion').value);
+        
+        SKILLS.forEach(skill => {
+            if (character.skills[skill]) {
+                character.skills[skill].max = maxPoints;
+            }
+        });
+        
+        saveCharacter();
+        updateSkills();
+        updateCharacter();
+        
+        const settings = {
+            pointsPerTask: pointsPerTask,
+            coinsPerTask: coinsPerTask,
+            healthPerTask: healthPerTask,
+            goalCompletionPerTask: goalCompletionPerTask
+        };
+        
+        localStorage.setItem('settings', JSON.stringify(settings));
+        alert("Settings saved!");
+    }
+
+    function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function saveCharacter() {
+        localStorage.setItem('character', JSON.stringify(character));
+    }
+
+    function saveShopItems() {
+        localStorage.setItem('shopItems', JSON.stringify(shopItems));
+    }
+
+    function saveSkills() {
+        localStorage.setItem('skills', JSON.stringify(SKILLS));
+    }
+</script>
+
+</body>
+</html>
